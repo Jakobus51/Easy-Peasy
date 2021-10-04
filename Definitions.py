@@ -7,11 +7,13 @@ import requests
 import json
 import threading
 import sys
-import docx
+import os
+
 from docx2pdf import convert
 from pathlib import Path
 from os import path
 import shutil
+import docx
 
 
 from urllib.request import urlopen
@@ -42,6 +44,7 @@ def GetHTML(URL):
 
 #Returns the value of amount of of results on bol.com
 def GetBolResult(product):
+	
 	product_string = product.replace(" ", "+")
 	my_url = "https://www.bol.com/nl/nl/s/?searchtext={}".format(product_string)
 
@@ -147,6 +150,7 @@ def RemoveNonDigit(result):
 	return resultWithoutText
 
 
+#Generate invoice by writing in the empty invoice and saving it as pdf
 def generateInvoice(order):    
 	doc = docx.Document("C:/Users/Jakob/Documents/EasyPeasy/Boekhouding/Empty invoice.docx")
 	
@@ -164,8 +168,9 @@ def generateInvoice(order):
 	shutil.copyfile("C:/Users/Jakob/Documents/EasyPeasy/Resultaten/{}/{} {} factuur.pdf".format( order.fileName, order.invoiceNumber, order.fileName), "C:/Users/Jakob/Documents/EasyPeasy/Boekhouding/Facturen Uit/{} {} factuur.pdf".format(order.invoiceNumber, order.fileName))
 
 	
-
+#Write the results into an excel and colour the header
 def writeExcel(order, products):
+	
 	writer = pd.ExcelWriter("C:/Users/Jakob/Documents/EasyPeasy/Resultaten/{}/{} Resultaten ({}).xlsx".format(order.fileName, order.fileName, order.package), engine='xlsxwriter')
 
 	products.to_excel(writer, sheet_name="Sheet1" , startrow=1, header=False, index= False)
@@ -185,22 +190,46 @@ def writeExcel(order, products):
 	writer.save()
 
 def setAndFillFolder(order):
-	
-    #Make folder in resultaten map genaamd je fileName
-    #In folde create a new csv and pause, during pause copy products into csv
-    #Save invoice into this folder (pdf +word), only pdf in in the boekhoud folder
-    #Save result into this folder
-    #Save correct explanation pdf in this folder
-    #This way all relevant information for the customer is at one location
 		
-	
+	#Check if the file exist otherwise make a new one
 	if (Path("C:/Users/Jakob/Documents/EasyPeasy/Resultaten/{}/{}.csv".format(order.fileName, order.fileName)).exists()):
 		print("file found: {}.csv".format(order.fileName))
+		input("Want to check file? otherwise proceed")
 	else:
 		Path("C:/Users/Jakob/Documents/EasyPeasy/Resultaten/{}".format(order.fileName, order.fileName)).mkdir(parents=True, exist_ok=True)
-		df = pd.DataFrame([])
-		df.to_csv("C:/Users/Jakob/Documents/EasyPeasy/Resultaten/{}/{}.csv".format(order.fileName, order.fileName))
-		input("Tijd om de csv te vullen goosie goosie ({})".format(order.fileName))
+		#check if a correct list was retrieved from sample form
+		if(order.package == "Sample"):
+			df = pd.DataFrame(order.productList)
+			df.to_csv("C:/Users/Jakob/Documents/EasyPeasy/Resultaten/{}/{}.csv".format(order.fileName, order.fileName), index=False, header=False)
+		
+			print("+"*20)
+			print(order.productList)
+			print("+"*20)
+						
+			input("({}), is above list correct? Press enter to continue".format(order.fileName))
+		
+		#wait till the list is filled of the order
+		else:
+			df = pd.DataFrame([])
+			df.to_csv("C:/Users/Jakob/Documents/EasyPeasy/Resultaten/{}/{}.csv".format(order.fileName, order.fileName))
+			print("Message of customer:")
+			print(order.message)
+			print()
+
+			os.startfile("C:/Users/Jakob/Documents/EasyPeasy/Resultaten/{}/{}.csv".format(order.fileName, order.fileName))
+			input("({}), fill csv please. Press enter to continue".format(order.fileName))
+
+
+def addInstruction(order):
+	#Add the instruction pdf to the file
+	if(order.package == "Sample" or order.package == "Complete"):
+		shutil.copyfile("C:/Users/Jakob/Documents/EasyPeasy/Uitleg/Complete.pdf", "C:/Users/Jakob/Documents/EasyPeasy/Resultaten/{}/Complete.pdf".format(order.fileName))
+
+	if(order.package == "Advanced"):
+		shutil.copyfile("C:/Users/Jakob/Documents/EasyPeasy/Uitleg/Advanced.pdf", "C:/Users/Jakob/Documents/EasyPeasy/Resultaten/{}/Advanced.pdf".format(order.fileName))
+
+	if(order.package == "Basic"):
+		shutil.copyfile("C:/Users/Jakob/Documents/EasyPeasy/Uitleg/Basic.pdf", "C:/Users/Jakob/Documents/EasyPeasy/Resultaten/{}/Basic.pdf".format(order.fileName))
 
 
 

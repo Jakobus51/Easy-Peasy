@@ -3,31 +3,44 @@ import os
 
 #Initialize your order
 class Order:	
-
-	def __init__(self, name, company, date, package, numberOfProducts ):
+	def __init__(self, name, company, email, date, package, numberOfProducts, productList, message):		
 		self.name = name
-		self.company = company  
+		self.company = company 
+		self.email = email
 		self.date = date
 		self.package = package
-		self.numberOfProducts = numberOfProducts
+		self.numberOfProducts = numberOfProducts	
+		self.message = message
 
 		#this is the amount of products that are in the csv
 		self.numberOfProductsScript = ""
-		self.setInvoiceNumber()
+		self.setInvoiceInfo(package)
 		self.setMoney(package, numberOfProducts)
 		self.total = round(self.amount + self.tax, 2)
 		self.fileName = "{} ({})".format(self.company, self.date)
+		self.setProductList(productList, package)
 		self.setColour(package)
 		self.averageTime = ""		
 		self.totalTimeResearch = ""
 
-	def setInvoiceNumber(self):
-		#Gets the latest file in the given directory
-		list_of_files = glob.glob("C:/Users/Jakob/Documents/EasyPeasy/Boekhouding/Facturen Uit/*") 
-		latest_file = max(list_of_files, key=os.path.getctime)		
+	def setProductList(self, productList, package):
+		if(package == "Sample"):
+			self.productList = productList
+		else:
+			self.productList = ""
 
-		#retrieves the invoice number from the latest file in the directory and adds one
-		self.invoiceNumber = int(latest_file[latest_file.index("Uit")+4: latest_file.index("Uit")+9]) +1
+	def setInvoiceInfo(self, package):
+		#If free sample don't generate invoice
+		if(package == "Sample"):
+			self.generateInvoice = False
+		else:
+			self.generateInvoice = True
+			#Gets the latest file in the given directory, if no invoice 
+			list_of_files = glob.glob("C:/Users/Jakob/Documents/EasyPeasy/Boekhouding/Facturen Uit/*") 
+			latest_file = max(list_of_files, key=os.path.getctime)		
+
+			#retrieves the invoice number from the latest file in the directory and adds one to the number
+			self.invoiceNumber = int(latest_file[latest_file.index("Uit")+4: latest_file.index("Uit")+9]) +1
 
 	def setColour(self, package):
 		if(package == "Sample" or package == "Complete"):
@@ -73,3 +86,4 @@ class Order:
 		if(package == "Complete" and numberOfProducts == 100 ):
 			self.amount = 99.95
 			self.tax = 20.99
+

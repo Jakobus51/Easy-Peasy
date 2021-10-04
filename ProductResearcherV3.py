@@ -56,7 +56,7 @@ def Basic(order):
 	print("Number of products: {}\n".format(order.numberOfProductsScript))
 
 	for product in products["Originele Product"]:
-
+		
 		#Get new token after 260 seconds
 		if time.perf_counter() - accestokenStartTime >260:
 			accestokenStartTime = time.perf_counter()
@@ -118,6 +118,7 @@ def Advanced(order):
 	print("Number of products: {}\n".format(order.numberOfProductsScript))
 
 	for product in products["Originele Product"]:
+		
 		#Get new token after 260 seconds
 		if time.perf_counter() - accestokenStartTime >260:
 			accestokenStartTime = time.perf_counter()
@@ -195,7 +196,8 @@ def Complete(order):
 	order.numberOfProductsScript =  len(products["Originele Product"])
 	print("Number of products: {}\n".format(order.numberOfProductsScript))
 	
-	for product in products["Originele Product"]:	
+	for product in products["Originele Product"]:
+	
 		#Get new token after 260 seconds
 		if time.perf_counter() - accestokenStartTime >260:
 			accestokenStartTime = time.perf_counter()
@@ -228,13 +230,13 @@ def Complete(order):
 
 					bolResults = defi.GetBolResult(searchTerm)
 					newRow = {"Originele Product": product,
-							  "Gerelateerde Zoekterm" : searchTerm,
-							  "Zoekvolume \n(1 Maand)": searchVolume ,
-							  "Resultaten op Bol":bolResults[0],
-							 "Hoeveelheid Reviews \n(1ste Product)":bolResults[1],
-							 "Hoeveelheid Reviews \n(2de Product)":bolResults[2],
-							 "Hoeveelheid Reviews \n(3de Product)":bolResults[3]						  
-							  }
+								"Gerelateerde Zoekterm" : searchTerm,
+								"Zoekvolume \n(1 Maand)": searchVolume ,
+								"Resultaten op Bol":bolResults[0],
+								"Hoeveelheid Reviews \n(1ste Product)":bolResults[1],
+								"Hoeveelheid Reviews \n(2de Product)":bolResults[2],
+								"Hoeveelheid Reviews \n(3de Product)":bolResults[3]						  
+								}
 					products = products.append(newRow, ignore_index=True)
 		except:
 			continue
